@@ -4,6 +4,7 @@ import * as employeeController from '../../controllers/employeeController.js';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
+import verifyJWT from './../../middleware/verifyJWT.js'
 
 employeeRouter.route('/')
     .get(employeeController.getAllEmployees)

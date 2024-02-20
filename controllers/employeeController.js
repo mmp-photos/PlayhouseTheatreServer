@@ -38,11 +38,3 @@ export const findEmployee = (req, res) => {
         "id": req.params.id
     })
 };
-
-// module.exports = {
-//     getAllEmployees,
-//     createNewEmployee,
-//     updateEmployee,
-//     deleteEmployee,
-//     findEmployee
-// }

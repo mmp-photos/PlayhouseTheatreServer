@@ -1,10 +1,11 @@
-import { allowedOrigins } from './../config/corsOptions.js';
+import allowedOrigins from './../config/allowedOrigins.js';
 
 const credentials = (req, res, next) => {
     const origin = req.headers.origin;
-    if (allowOrigins.includes(origin)) {
-        res.header('Access-Control-Allow-Credentials', true)
+    if (allowedOrigins.includes(origin)) {
+        res.header('Access-Control-Allow-Credentials', true);
     }
-};
+    next();
+}
 
-export default credentials;
+export default credentials

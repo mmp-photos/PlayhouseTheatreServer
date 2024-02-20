@@ -1,53 +1,75 @@
-import { createRequire } from 'node:module';
-const require = createRequire(import.meta.url);
-const users = require('../models/users.json');
-const usersDB = {
-    users: users,
-    setUsers: function(data) {this.users = data}
-}
-
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-require('dotenv').config();
-const fsPromises = require('fs').promises;
-const path = require('path');
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
-const __dirname = dirname(fileURLToPath(import.meta.url));
+import 'dotenv/config';
+import { pool } from '../data/database2.js';
 
-const handleLogin = async (req, res) => {
-    console.log(`Auth function has`)
-    const { username, password } = req.body
-    console.log(`username from req = ${username}`)
-    if(!username || ! password) return res.status(400).json({'message': "username and password are required"})
-    const foundUser = usersDB.users.find(person => person.username === username)
-    if(!foundUser) return res.sendStatus(401)
-    
-    const match = await bcrypt.compare(password, foundUser.password)
-    if(match){
-        const accessToken = jwt.sign(
-            { "username": username },
-            process.env.ACCESS_TOKEN_SECRET,
-            {expiresIn: '4800s'}
-        );
-        const refreshToken = jwt.sign(
-            { "username": username },
-            process.env.REFRESH_TOKEN_SECRET,
-            {expiresIn: '1d'}
-        )
-        // SAVING REFRESH TOKEN TO CURRENT USER //
-        const otherUsers = usersDB.users.filter(person => person.username !== foundUser.username)
-        const currentUser = { ...foundUser, refreshToken }
-        usersDB.setUsers([...otherUsers, currentUser])
-        await fsPromises.writeFile(
-            path.join(__dirname, '..', 'models', 'users.json'),
-            JSON.stringify(usersDB.users)
-        )
-    res.cookie('jwt', refreshToken, { httpOnly: true, sameSite: 'None', secure: true, maxAge: 24 * 60 * 60 * 1000 })
-    res.json({ accessToken })
-    } else {
-        res.sendStatus(401)
+const sql = 'SELECT * FROM users WHERE email = ?';
+
+async function handleLogin(req, res) {
+    console.log(`Email passed to handler is ${req.body.email}`);
+    try {
+        const connection = await pool.getConnection();
+        console.log(`Database is connected`);
+        try {
+            const [rows, fields] = await connection.query(sql, [req.body.email]);
+
+            if (rows.length > 0 && rows[0].password) {
+                console.log(`Email was found in the database`);
+                bcrypt.compare(req.body.password, rows[0].password, function(err, result) {
+                    if (err) {
+                        console.error('Error comparing passwords:', err);
+                        return res.status(500).json({ error: 'Internal server error' });
+                    }
+
+                    if (result) {
+                        console.log(`Password Comparison successful`)
+                        const user = {
+                            id: rows[0].id,
+                            first_name: rows[0].first_name,
+                            last_name: rows[0].last_name
+                        };
+
+                        const accessToken = jwt.sign(
+                            { "email": rows[0].email },
+                            process.env.ACCESS_TOKEN_SECRET,
+                            { expiresIn: '1m' }
+                        );
+
+                        const refreshToken = jwt.sign(
+                            { "email": rows[0].email },
+                            process.env.REFRESH_TOKEN_SECRET,
+                            { expiresIn: '5d' }
+                        );
+                        console.log(`The comparision was complete and the JWT was created`)
+
+                        const updateSql = `UPDATE users SET refresh_token = ? WHERE user_id = ?`;
+                        connection.query(updateSql, [refreshToken, user.id], function (err, result) {
+                            if (err) {
+                                console.error('Error updating refresh token:', err);
+                                return res.status(500).json({ error: 'Internal server error' });
+                            }
+                            console.log(result.affectedRows + " record(s) updated");
+                        });
+                        // Creates Secure Cookie with refresh token
+                        res.cookie('jwt', refreshToken, { httpOnly: true, secure: true, sameSite: 'None', maxAge: 24 * 60 * 60 * 1000 });
+
+                        // Send authorization roles and access token to user
+                        res.json({ accessToken });                        
+                    } else {
+                        return res.sendStatus(400);
+                    }
+                });
+            } else {
+                return res.sendStatus(400);
+            }
+        } finally {
+            connection.release(); // Release the connection after query execution
+            console.log('Connection was released');
+        }
+    } catch (error) {
+        console.error('Error executing query:', error);
+        res.status(500).json({ error: 'Internal server error' });
     }
-};
+}
 
-export default { handleLogin }
+export default { handleLogin };

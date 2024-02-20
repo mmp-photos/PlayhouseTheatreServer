@@ -7,9 +7,7 @@ import { fileURLToPath } from 'url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 require('dotenv').config();
 
-import jwt from 'jsonwebtoken';
 import mysql from 'mysql2';
-import bcrypt from 'bcrypt';
 
 export const pool = mysql.createPool({
     host: process.env.MYSQL_HOST,

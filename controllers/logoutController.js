@@ -14,27 +14,21 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export const handleLogout = async (req, res) => {
     //on Client delete access token//
+    console.log(`Lougout route has run`)
     const cookies = req.cookies;
-    if (!cookies?.jwt) return res.sendStatus(204);
-    const refreshToken = cookies.jwt;
-
-    const foundUser = usersDB.users.find(person => person.refreshToken === refreshToken);
-    if (!foundUser){
-        res.clearCookie('jwt', {httpOnly: true, sameSite: 'None', secure: true})
-        return res.sendStatus(204);
-    }
-    
-    const otherUsers = usersDB.users.filter(person => person.refreshToken !== foundUser.refreshToken)
-    const currentUser = {...foundUser, refreshToken: ''}
-    usersDB.setUsers({...otherUsers, currentUser})
-    await fsPromises.writeFile(
-        path.join(__dirname, '..', 'models', 'users.json'),
-        JSON.stringify(usersDB.users)
-    )
-
+        if (!cookies?.jwt) return res.sendStatus(204);
+        else {
+        const refreshToken = cookies.jwt;
+        console.log(refreshToken)        
+        const sql = `UPDATE users SET refresh_token = NULL WHERE refresh_token = '${refreshToken}'`;
+        connection.query(sql, function (err, result) {
+            if (err) throw err;
+            })
+        return res.sendStatus(204)
+        }
     res.clearCookie('jwt', {httpOnly: true, sameSite: 'None', secure: true})
     res.sendStatus(204)
-    console.log(`Cookie was cleared`)
-};
+    console.log(`Cookie was cleared`);
+    }
 
 export default { handleLogout }
