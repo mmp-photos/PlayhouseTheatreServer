@@ -39,7 +39,7 @@ export async function getUsers(req, res) {
     if(!idExists[0].length && !emailExists[0].length){
         const sql = `INSERT INTO users (user_id, created_at, first_name, last_name, email, password, role) VALUES ('${id}', '${created_on}', '${first_name}', '${last_name}', '${email}', '${hashedPwd}', '${user_type}')`;
         await pool.query(sql)
-        res.status(200).json({ 'users': first_name })
+        res.status(200).json({ 'first_name': first_name, 'last_name': last_name })
     }
     else{
         res.status(400).json({"message": "Id already exists"})
