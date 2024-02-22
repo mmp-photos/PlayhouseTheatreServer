@@ -21,7 +21,7 @@ import verifyJWT from './middleware/verifyJWT.js';
 import credentials from './middleware/credentials.js';
 import cookieParser from 'cookie-parser';
 
-app.use(credentials);
+// app.use(credentials);
 app.use(cors(corsOptions));
 
 app.use((req, res, next) => {
