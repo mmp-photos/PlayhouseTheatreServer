@@ -13,17 +13,16 @@ import express from 'express';
 const app = express();
 const PORT = process.env.PORT || 3500;
 
-import corsOptions from './config/corsOptions.js'; // Import your custom corsOptions
-
+import corsOptions from './config/corsOptions.js';
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
+const __dirname = dirname(fileURLToPath(import.meta.url));
 import verifyJWT from './middleware/verifyJWT.js';
 import credentials from './middleware/credentials.js';
 import cookieParser from 'cookie-parser';
 
 app.use(credentials);
-
-// Remove manual setting of CORS headers
-
-app.use(cors(corsOptions)); // Use the custom corsOptions
+app.use(cors(corsOptions));
 
 app.use((req, res, next) => {
     console.log(`${req.method} request for ${req.path}`);

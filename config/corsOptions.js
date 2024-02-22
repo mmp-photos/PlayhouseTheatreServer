@@ -10,7 +10,9 @@ const corsOptions = {
     },
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true // Allow credentials
+    credentials: true, // Allow credentials
+    origin: ['https://playhouseacademy.onrender.com', 'https://playhouseacademy.onrender.com/backstage']
+
 };
 
 export default corsOptions;
