@@ -13,25 +13,17 @@ import express from 'express';
 const app = express();
 const PORT = process.env.PORT || 3500;
 
-import corsOptions from './config/corsOptions.js';
-import { dirname } from 'path';
-import { fileURLToPath } from 'url';
-const __dirname = dirname(fileURLToPath(import.meta.url));
+import corsOptions from './config/corsOptions.js'; // Import your custom corsOptions
+
 import verifyJWT from './middleware/verifyJWT.js';
 import credentials from './middleware/credentials.js';
 import cookieParser from 'cookie-parser';
 
 app.use(credentials);
-app.use((req, res, next) => {
-    res.setHeader("Access-Control-Allow-Origin", "https://playhouseacademy.onrender.com");
-    res.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT");
-    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-    res.setHeader("Access-Control-Allow-Credentials", "true"); // Allow credentials
-    next();
-});
 
-// You don't need this anymore
-// app.use(cors(corsOptions));
+// Remove manual setting of CORS headers
+
+app.use(cors(corsOptions)); // Use the custom corsOptions
 
 app.use((req, res, next) => {
     console.log(`${req.method} request for ${req.path}`);
