@@ -1,4 +1,4 @@
-//Import statements//
+// Import statements
 import cors from 'cors';
 import indexRouter from './routes/indexRouter.js';
 import adminRouter from './routes/adminRouter.js';
@@ -21,33 +21,36 @@ import verifyJWT from './middleware/verifyJWT.js';
 import credentials from './middleware/credentials.js';
 import cookieParser from 'cookie-parser';
 
-app.use(credentials)
+app.use(credentials);
 app.use((req, res, next) => {
     res.setHeader("Access-Control-Allow-Origin", "https://playhouseacademy.onrender.com");
     res.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT");
     res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+    res.setHeader("Access-Control-Allow-Credentials", "true"); // Allow credentials
     next();
-  })
-app.use(cors(corsOptions))
-app.use(cors());
+});
+
+// You don't need this anymore
+// app.use(cors(corsOptions));
 
 app.use((req, res, next) => {
-    console.log(`${req.method} request for ${req.path}`)
-    next()
+    console.log(`${req.method} request for ${req.path}`);
+    next();
 });
 app.use(express.urlencoded({extended: false}));
 app.use(express.json());
 app.use(cookieParser());
-//Routes//
-app.use('/classes', classesRouter); // Specific route for '/classes' endpoint
+
+// Routes
+app.use('/classes', classesRouter);
 app.use('/auth', authRouter);
 app.use('/admin', adminRouter);
-app.use('/', indexRouter); // Specific route for other root-level endpoints
-app.use('/register', registerRouter)
-app.use('/refresh', refreshRouter)
-app.use(verifyJWT)
-app.use('/employee', employeeRouter)
-app.use('/logout', logoutRouter)
+app.use('/', indexRouter);
+app.use('/register', registerRouter);
+app.use('/refresh', refreshRouter);
+app.use(verifyJWT);
+app.use('/employee', employeeRouter);
+app.use('/logout', logoutRouter);
 
 // Static files and catch-all route
 app.use(express.static('public'));
@@ -62,21 +65,18 @@ app.use((req, res) => {
     }
 });
 
-//404 Redirect//
+// 404 Redirect
 app.all('*', (req, res) => {
-    res.status(404)
+    res.status(404);
     if(req.accepts('html')) {
-        res.sendFile('./views/404.html', {root: __dirname})
+        res.sendFile('./views/404.html', {root: __dirname});
     }
     else if(req.accepts('json')){
-        res.json({error: '404 - not found'})
+        res.json({error: '404 - not found'});
     }
     else {
-        res.type('txt').send('404 Not-Found')
+        res.type('txt').send('404 Not-Found');
     }
 });
-
-//Error handling//
-// app.use(errorHandler)
 
 app.listen(PORT, () => console.log(`Server is listening on port ${PORT}`));
