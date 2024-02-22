@@ -23,13 +23,13 @@ import cookieParser from 'cookie-parser';
 
 app.use(credentials)
 app.use((req, res, next) => {
-    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Origin", "https://playhouseacademy.onrender.com");
     res.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT");
     res.setHeader("Access-Control-Allow-Headers", "Content-Type");
     next();
   })
-// app.use(cors(corsOptions))
-// app.use(cors());
+app.use(cors(corsOptions))
+app.use(cors());
 
 app.use((req, res, next) => {
     console.log(`${req.method} request for ${req.path}`)
