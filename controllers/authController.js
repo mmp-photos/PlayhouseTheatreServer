@@ -25,6 +25,7 @@ async function handleLogin(req, res) {
                         console.log(`Password Comparison successful`)
                         const user = {
                             id: rows[0].id,
+                            first_name: rows[0].user_id,
                             first_name: rows[0].first_name,
                             last_name: rows[0].last_name
                         };
@@ -40,6 +41,18 @@ async function handleLogin(req, res) {
                             process.env.REFRESH_TOKEN_SECRET,
                             { expiresIn: '5d' }
                         );
+
+                        const response = {
+                            status: 200,
+                            message: 'Success',
+                            user: {
+                                id: rows[0].id,
+                                first_name: rows[0].user_id,
+                                first_name: rows[0].first_name,
+                                last_name: rows[0].last_name
+                            }
+                        };
+                        
                         console.log(`The comparision was complete and the JWT was created`)
 
                         const updateSql = `UPDATE users SET refresh_token = ? WHERE user_id = ?`;
@@ -50,13 +63,16 @@ async function handleLogin(req, res) {
                             }
                             console.log(result.affectedRows + " record(s) updated");
                         });
+
+                        res.setHeader('Content-Type', 'application/json');
+
                         // Creates Secure Cookie with refresh token
                         res.cookie('jwt', refreshToken, { httpOnly: true, secure: true, sameSite: 'None', maxAge: 24 * 60 * 60 * 1000 });
-
+                        
                         // Send authorization roles and access token to user
-                        res.json({ accessToken });                        
+                        res.status(200).json(response);                        
                     } else {
-                        return res.sendStatus(400);
+                        return res.status(400);
                     }
                 });
             } else {
