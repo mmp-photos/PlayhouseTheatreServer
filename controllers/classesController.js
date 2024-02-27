@@ -1,23 +1,68 @@
-import 'dotenv/config';
-import { pool } from '../data/database2.js';
+// classesController.js
+import ClassService from '../services/classService.js';
 
-  const sql = 'SELECT * from academy_classes';
-  async function getAllClasses(req, res) {
-    console.log(`Request for all classes`);
-    try {
-        const connection = await pool.getConnection();
-        console.log(`Database is connected`);
-        try {
-            const [rows, fields] = await connection.query(sql);
-            res.status(200).json(rows);
-            return;
-        } finally {
-            connection.release(); // Release the connection after query execution
-            console.log('Connection was released');
-        }
-    } catch (error) {
-        console.error('Error executing query:', error);
-        res.status(500).json({ error: 'Internal server error' });
-    }
-}
-  export default { getAllClasses };
+const classService = new ClassService();
+
+export const getClassById = async (req, res) => {
+  const classId = req.params.classID;
+  try {
+    const classData = await classService.getClassById(classId);
+    res.json(classData);
+  } catch (error) {
+    console.error('Error retrieving class data:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+export const getAllClasses = async (req, res) => {
+  try {
+    const classData = await classService.getAllClasses();
+    res.json(classData);
+  } catch (error) {
+    console.error('Error retrieving class data:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+
+
+
+
+
+
+
+
+
+
+// import ClassModel from '../models/classModel.js';
+
+// const classModel = new ClassModel();
+
+// export const getClassById = async (req, res) => {
+//   console.log(`Get class by ID on classController`)
+//   const classId = req.params.classID;
+//   try {
+//     const classData = await classModel.getClassById(classId);
+//     if (classData.length === 0) {
+//       return res.status(404).json({ message: 'Class not found' });
+//     }
+//     res.json(classData);
+//   } catch (error) {
+//     console.error('Error retrieving class data:', error);
+//     res.status(500).json({ message: 'Internal server error' });
+//   }
+// }
+// export const getAllClasses = async (req, res) => {
+//   console.log(`Get all classes on classController`)
+//   try {
+//     const classData = await classModel.getAllClasses();
+//     if (classData.length === 0) {
+//       return res.status(404).json({ message: 'No classes found' });
+//     }
+//     res.json(classData);
+//   } catch (error) {
+//     console.error('Error retrieving class data:', error);
+//     res.status(500).json({ message: 'Internal server error' });
+//   }
+// }
+// ;

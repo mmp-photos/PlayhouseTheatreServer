@@ -1,4 +1,3 @@
-// Import statements
 import cors from 'cors';
 import indexRouter from './routes/indexRouter.js';
 import adminRouter from './routes/adminRouter.js';
@@ -10,6 +9,7 @@ import logoutRouter from './routes/logoutRouter.js';
 import classesRouter from './routes/classesRouter.js';
 
 import express from 'express';
+import path from 'path'; // Import the path module
 const app = express();
 const PORT = process.env.PORT || 3500;
 
@@ -21,7 +21,6 @@ import verifyJWT from './middleware/verifyJWT.js';
 import credentials from './middleware/credentials.js';
 import cookieParser from 'cookie-parser';
 
-// app.use(credentials);
 app.use(cors(corsOptions));
 
 app.use((req, res, next) => {
@@ -32,19 +31,19 @@ app.use(express.urlencoded({extended: false}));
 app.use(express.json());
 app.use(cookieParser());
 
-// Routes
 app.use('/classes', classesRouter);
+app.use('/', indexRouter);
 app.use('/auth', authRouter);
 app.use('/admin', adminRouter);
-app.use('/', indexRouter);
 app.use('/register', registerRouter);
 app.use('/refresh', refreshRouter);
 app.use(verifyJWT);
 app.use('/employee', employeeRouter);
 app.use('/logout', logoutRouter);
 
-// Static files and catch-all route
-app.use(express.static('public'));
+// Fix the path import and usage
+app.use('/static', express.static(path.join(__dirname, 'public')));
+
 app.use((req, res) => {
     res.status(404);
     if(req.accepts('html')) {
@@ -56,7 +55,6 @@ app.use((req, res) => {
     }
 });
 
-// 404 Redirect
 app.all('*', (req, res) => {
     res.status(404);
     if(req.accepts('html')) {
