@@ -11,6 +11,14 @@ class ClassService {
   async getAllClasses() {
     return classModel.getAllClasses();
   }
+
+  async getSelectOptions() {
+    return classModel.getSelectOptions();
+  }
+
+  async addNewClass(newClassData) {
+    return classModel.addNewClass(newClassData);
+  }
 }
 
 export default ClassService;
