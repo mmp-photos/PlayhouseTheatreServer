@@ -11,9 +11,9 @@ class ClassService {
   async getAllClasses() {
     return classModel.getAllClasses();
   }
-
-  async getSelectOptions() {
-    return classModel.getSelectOptions();
+  
+  async getFeaturedClasses() {
+    return classModel.getFeaturedClasses();
   }
 
   async addNewClass(newClassData) {

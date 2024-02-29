@@ -25,7 +25,7 @@ async function handleLogin(req, res) {
                         console.log(`Password Comparison successful`)
                         const user = {
                             id: rows[0].id,
-                            first_name: rows[0].user_id,
+                            user_id: rows[0].user_id,
                             first_name: rows[0].first_name,
                             last_name: rows[0].last_name
                         };
@@ -47,12 +47,12 @@ async function handleLogin(req, res) {
                             message: 'Success',
                             user: {
                                 id: rows[0].id,
-                                first_name: rows[0].user_id,
+                                user_id: rows[0].user_id,
                                 first_name: rows[0].first_name,
                                 last_name: rows[0].last_name
                             }
                         };
-                        
+                        console.log(`Response is: ${response.user.user_id}`)
                         console.log(`The comparision was complete and the JWT was created`)
 
                         const updateSql = `UPDATE users SET refresh_token = ? WHERE user_id = ?`;

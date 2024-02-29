@@ -20,21 +20,6 @@ classesRouter.get('/', async (req, res) => {
   }
 });
 
-// GET /classes/options_data - Move this route above the /:classID route
-classesRouter.get('/options_data', async (req, res) => {
-  console.log(`Options data for class form requested`)
-  try {
-    const classData = await classService.getSelectOptions;
-    if (classData.length === 0) {
-      return res.status(404).json({ message: 'Unable to retrieve options' });
-    }
-    res.json(classData);
-  } catch (error) {
-    console.error('Error retrieving class data:', error);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-});
-
 // GET /classes/:classID
 classesRouter.get('/:classID', async (req, res) => {
   console.log(`Requested class by ID`)
@@ -51,16 +36,38 @@ classesRouter.get('/:classID', async (req, res) => {
   }
 });
 
+// GET /classes/featured
+classesRouter.get('/featured', async (req, res) => {
+  console.log(`Requested class by ID`)
+  const classId = req.params.classID;
+  try {
+    const classData = await classService.getFeaturedClasses(classId);
+    if (classData.length === 0) {
+      return res.status(403).json({ message: 'No featured classes found' });
+    }
+    res.json(classData);
+  } catch (error) {
+    console.error('Error retrieving class data:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
 classesRouter.post('/add', async (req, res) => {
-  console.log(`Adding Class to Database`)
+  console.log(`Adding Class to Database`);
   const newClassData = req.body;
   console.log(newClassData);
   try {
     const classData = await classService.addNewClass(newClassData);
-      return res.status(404).json({ message: 'Class not found' });
+    // Assuming classData is returned upon successful insertion, you can return a success response
+    return res.status(201).json({ message: 'Class added successfully', classData });
   } catch (error) {
-    console.error('Error retrieving class data:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    console.error('Error adding class:', error);
+    // Return an appropriate error status code based on the error type
+    if (error instanceof SomeSpecificError) {
+      return res.status(400).json({ message: 'Bad request' });
+    } else {
+      return res.status(500).json({ message: 'Internal server error' });
+    }
   }
 });
 
