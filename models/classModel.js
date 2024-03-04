@@ -19,6 +19,7 @@ class ClassModel {
           c.class_term,
           c.class_audience,
           c.class_locations,
+          c.class_featured,
           l.location_id,
           l.location_name,
           l.address_1,
@@ -54,6 +55,8 @@ class ClassModel {
           c.class_term,
           c.class_cost,
           c.class_registration,
+          c.class_enrollment_link,
+          c.class_featured,
           c.class_locations,
           l.location_id,
           l.location_name,
@@ -90,10 +93,19 @@ class ClassModel {
           c.class_term,
           c.class_cost,
           c.class_registration,
+          c.class_audience,
+          c.class_enrollment_link,
+          c.class_cost,
+          c.class_registration,
           c.class_locations,
           l.location_id,
           l.location_name,
           l.address_1,
+          l.address_2,
+          l.city,
+          l.state,
+          l.zip,
+          l.parking,
           p.person_id,
           p.person_name AS instructor_name,
           p.person_photo
@@ -115,7 +127,6 @@ class ClassModel {
       throw error;
     }
   }
-
   async addNewClass(newClassData) {
     try {
         const class_name = newClassData.className;
@@ -157,41 +168,77 @@ class ClassModel {
         console.error('Error adding new class:', error);
         throw error;
     }
-}
+  }
 
+  async updateClassDetails(classUpdates) {
+    const classId = classId;
+    const className = classUpdates.className;
+    const classCost = classUpdates.classCost;
+    const classRegistration = classUpdates.class_registration;
+    const classDescription = classUpdates.class_description;
+    const classTerm = classUpdates.class_term;
+    const classAudience = classUpdates.class_audience;
+    const classLink = classUpdates.class_link;
+    const classFeatured = classUpdates.class_featured;
+    const classLocation = classUpdates.class_locations;
+    const classInstructor = classUpdates.class_instructor;
+    return new Promise((resolve, reject) => {
+      pool.getConnection((err, connection) => {
+        if (err) {
+          reject(err);
+          return;
+        }
 
-//   async getSelectOptions() {
-//       // SQL query to fetch all items from the locations table
-//     const locationsQuery = 'SELECT * FROM locations';
-//     // SQL query to fetch all items from the instructors table
-//     const instructorsQuery = 'SELECT * FROM instructors';
+        // Begin transaction
+        connection.beginTransaction(err => {
+          if (err) {
+            connection.release();
+            reject(err);
+            return;
+          }
 
-//   // Execute both queries in parallel
-//   connection.query(locationsQuery, (err, locationsResult) => {
-//     if (err) {
-//       console.error('Error fetching data from locations table:', err);
-//       res.status(500).json({ error: 'Internal server error' });
-//       return;
-//     }
+          // Update academy_classes table
+          connection.query('UPDATE academy_classes SET class_name = ?, class_cost = ?, class_registration = ?, class_description = ?, class_term = ?, class_audience = ?, class_link = ?, class_createdBy = ?, class_featured = ?, class_location = ? WHERE class_id = ?', 
+          [className, classCost, classRegistration, classDescription, classTerm, classAudience, classLink, classCreatedBy, classFeatured, classLocation, classId], 
+          (err, result) => {
+            if (err) {
+              connection.rollback(() => {
+                connection.release();
+                reject(err);
+              });
+              return;
+            }
 
-//     connection.query(instructorsQuery, (err, instructorsResult) => {
-//       if (err) {
-//         console.error('Error fetching data from instructors table:', err);
-//         res.status(500).json({ error: 'Internal server error' });
-//         return;
-//       }
+          // Update classes_instructor table
+          connection.query('UPDATE classes_instructor SET instructorId = ? WHERE classId = ?', 
+          [classInstructor, classId], 
+          (err, result) => {
+            if (err) {
+              connection.rollback(() => {
+                connection.release();
+                reject(err);
+              });
+              return;
+            }
 
-//       // Combine the results into a single object
-//       const data = {
-//         locations: locationsResult,
-//         instructors: instructorsResult
-//       };
-
-//       // Send the combined data as a JSON response
-//       res.json(data);
-//     });
-//   });
-// }
-}
+            // Commit transaction
+            connection.commit(err => {
+              if (err) {
+                connection.rollback(() => {
+                  connection.release();
+                  reject(err);
+                });
+                return;
+              }
+              connection.release();
+              resolve();
+            });
+          });
+        });
+      });
+    });
+  })
+  }
+};
 
 export default ClassModel;
