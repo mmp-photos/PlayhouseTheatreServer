@@ -19,6 +19,14 @@ class ClassService {
   async addNewClass(newClassData) {
     return classModel.addNewClass(newClassData);
   }
+
+  async getAllClassData() {
+    return classModel.getAllClassData();
+  }
+
+  async getAllClassesByLocation() {
+    return classModel.getAllClassesByLocation();
+  }
 }
 
 export default ClassService;

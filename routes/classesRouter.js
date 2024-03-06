@@ -21,7 +21,7 @@ classesRouter.get('/', async (req, res) => {
 });
 
 // GET /classes/:classID
-classesRouter.get('/:classID', async (req, res) => {
+classesRouter.get('id/:classID', async (req, res) => {
   console.log(`Requested class by ID`)
   const classId = req.params.classID;
   try {
@@ -42,6 +42,36 @@ classesRouter.get('/featured', async (req, res) => {
   const classId = req.params.classID;
   try {
     const classData = await classService.getFeaturedClasses(classId);
+    if (classData.length === 0) {
+      return res.status(403).json({ message: 'No featured classes found' });
+    }
+    res.json(classData);
+  } catch (error) {
+    console.error('Error retrieving class data:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+classesRouter.get('/all_data', async (req, res) => {
+  console.log(`Requested all class data`)
+  const classId = req.params.classID;
+  try {
+    const classData = await classService.getAllClassData(classId);
+    if (classData.length === 0) {
+      return res.status(403).json({ message: 'No featured classes found' });
+    }
+    res.json(classData);
+  } catch (error) {
+    console.error('Error retrieving class data:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+classesRouter.get('/location', async (req, res) => {
+  console.log(`Requested classes by location`)
+  const classId = req.params.classID;
+  try {
+    const classData = await classService.getAllClassesByLocation(classId);
     if (classData.length === 0) {
       return res.status(403).json({ message: 'No featured classes found' });
     }
