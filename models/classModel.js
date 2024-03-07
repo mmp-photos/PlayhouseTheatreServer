@@ -23,7 +23,9 @@ class ClassModel {
           l.address_1,
           p.person_id,
           p.person_name AS instructor_name,
-          p.person_photo
+          p.person_photo,
+          ct.start_date,
+          ct.end_date
         FROM 
           academy_classes c
         LEFT JOIN 
@@ -32,6 +34,8 @@ class ClassModel {
           class_instructors ci ON c.class_id = ci.class_id
         LEFT JOIN 
           persons p ON ci.person_id = p.person_id
+        LEFT JOIN 
+          class_terms ct ON c.class_term = ct.term_id
         WHERE
           c.class_id = ?
           AND c.class_status != 'DELETED'`, [classId]
