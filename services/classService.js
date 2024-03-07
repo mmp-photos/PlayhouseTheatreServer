@@ -27,6 +27,10 @@ class ClassService {
   async getAllClassesByLocation() {
     return classModel.getAllClassesByLocation();
   }
+
+  async getAllClassesByAge() {
+    return classModel.getAllClassesByAge();
+  }
 }
 
 export default ClassService;

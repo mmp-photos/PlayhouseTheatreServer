@@ -4,6 +4,7 @@ import { classRegistration } from './classRegistration.js';
 
 class ClassModel {
   async getClassById(classId) {
+    console.log(classId)
     try {
       const connection = await pool.getConnection();
       const [rows] = await connection.execute(
@@ -16,15 +17,13 @@ class ClassModel {
           c.class_registration,
           c.class_enrollment_link,
           c.class_featured,
-          c.class_term,
-          c.class_audience,
           c.class_locations,
-          c.class_featured,
           l.location_id,
           l.location_name,
           l.address_1,
           p.person_id,
-          p.person_name AS instructor_name
+          p.person_name AS instructor_name,
+          p.person_photo
         FROM 
           academy_classes c
         LEFT JOIN 
@@ -160,6 +159,50 @@ class ClassModel {
               ac.class_status = 'LIVE'
           ORDER BY 
               l.location_name, ac.class_name;
+        `
+      );
+      connection.release();
+      return rows;
+    } catch (error) {
+      throw error;
+    }        
+  }
+
+  async getAllClassesByAge() {
+    try {
+      const connection = await pool.getConnection();
+      const [rows] = await connection.execute(
+        `SELECT 
+              ac.*,
+              l.location_id,
+              l.location_name,
+              ct.term_id,
+              ct.term_name,
+              ct.start_date,
+              ct.end_date,
+              ct.current_term,
+              ca.audience_id,
+              ca.audience_description,
+              p.person_id,
+              p.person_name,
+              p.person_photo,
+              p.person_title
+          FROM 
+              academy_classes AS ac
+          JOIN 
+              locations AS l ON ac.class_locations = l.location_id
+          JOIN 
+              class_terms AS ct ON ac.class_term = ct.term_id
+          JOIN 
+              class_audience AS ca ON ac.class_audience = ca.audience_id
+          JOIN 
+              class_instructors AS ci ON ac.class_id = ci.class_id
+          JOIN 
+              persons AS p ON ci.person_id = p.person_id
+          WHERE 
+              ac.class_status = 'LIVE'
+          ORDER BY 
+              ca.audience_description, ac.class_name DESC;
         `
       );
       connection.release();
