@@ -15,6 +15,7 @@ import refreshRouter from './routes/refreshRouter.js';
 import authRouter from './routes/api/authAPI.js';
 import logoutRouter from './routes/logoutRouter.js';
 import classesRouter from './routes/classesRouter.js';
+import instructorRouter from './routes/instructorRouter.js';
 
 const app = express();
 
@@ -41,6 +42,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use('/classes', classesRouter);
+app.use('/instructors', instructorRouter);
 app.use('/api', apiRouter);
 app.use('/', indexRouter);
 app.use('/auth', authRouter);
